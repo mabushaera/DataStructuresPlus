@@ -1,0 +1,256 @@
+package j.datastructure.tutorial.training;
+
+import java.util.LinkedList;
+import java.util.Queue;
+import java.util.Stack;
+
+public class BinaryTreeDemo {
+    public static void main(String[] args) {
+//        BinaryTree tree = new BinaryTree();
+//        tree.addNode(new Node(7));
+//        tree.addNode(new Node(8));
+//        tree.addNode(new Node(3));
+//        tree.addNode(new Node(1));
+//        tree.addNode(new Node(2));
+        
+        BinaryTree tree = new BinaryTree();   
+        Node nodeA = new Node("a");
+        Node nodeB = new Node("b");
+        Node nodeC = new Node("c");
+        Node nodeD = new Node("d");
+        Node nodeE = new Node("e");
+        Node nodeF = new Node("f");
+        Node nodeG = new Node("g");
+        Node nodeH = new Node("h");
+        Node nodeI = new Node("i");
+        Node nodeJ = new Node("j");
+        Node nodeK = new Node("k");
+        tree.root = nodeA;
+        tree.root.left = nodeB;
+        tree.root.right = nodeC;
+        tree.root.left.left = nodeD;
+        tree.root.left.right = nodeE;
+        tree.root.left.left.left = nodeH;
+        tree.root.left.right.left = nodeI;
+        tree.root.left.right.right = nodeJ;
+        tree.root.right.left = nodeF;
+        tree.root.right.right = nodeG;
+        tree.root.right.right.right = nodeK;
+        printBreadthFirstSearch(tree.root);
+        System.out.println();
+        printDepthFirstSearch(tree.root);
+    }
+
+    /**
+     * Description: Breadth First Search Binary Tree.
+     * 1. push root into the queue.
+     * 2. loop while queue is not empty.
+     * 2. check for top of the queue.
+     * 3. if the top has left, push left
+     * 4. if the top has right push right
+     * 5. whenever you pushed all subnodes of a node, pop this node, and print it to result.
+     * 6. keep iterating while the queue is not empty.
+     * @param root
+     */
+    private static void printBreadthFirstSearch(Node root) {
+        Queue<Node> queue = new LinkedList<Node>();
+        queue.add(root);
+        while(!queue.isEmpty()){
+            Node node = queue.peek();
+            if(node.left != null)
+                queue.add(node.left);
+            if(node.right != null)
+                queue.add(node.right);
+            
+            System.out.print(node+" ");
+            node = queue.poll();                    
+        }
+    }
+    
+
+    /**
+     * Description: Depth First Binary Tree Traversal
+     * 1. push root to stack
+     * 2. loop: while stack is not empty
+     * 3. pop to current
+     * 4. print
+     * 5. push right to stack
+     * 6. push left to stack
+     * @param root
+     */
+    public static void printDepthFirstSearch(Node root) {
+            Stack<Node> stack = new Stack<Node>();
+            stack.push(root);
+            while(!stack.isEmpty()) {
+                Node curr = stack.pop();
+                System.out.print(curr.name+" ")      ;
+                if (curr.right != null) {
+                    stack.push(curr.right);
+                }
+                if (curr.left != null) {
+                    stack.push(curr.left);
+                }
+            }
+        }
+    
+
+}
+
+class BinaryTree {
+    Node root;
+
+    public BinaryTree() {
+    }
+
+    public BinaryTree(Node root) {
+        this.root = root;
+    }
+
+    public void addNode(int data, String name) {
+        Node node = new Node(data, name);
+        addNode(node);
+    }
+
+    public void addNode(int data) {
+        Node node = new Node(data);
+        addNode(node);
+    }
+
+    public void addNode(Node node) {
+        if (root == null) {
+            root = node;
+            return;
+        }
+
+        Node parent;
+        Node focusNode = root;
+        while (true) {
+            parent = focusNode;
+            if (node.data < focusNode.data) {
+                focusNode = focusNode.left;
+                if (focusNode == null) {
+                    parent.left = node;
+                    return;
+                }
+            } else {
+                focusNode = focusNode.right;
+                if (focusNode == null) {
+                    parent.right = node;
+                    return;
+                }
+            }
+        }
+    }
+
+    public void removeNode(int data) {
+        removeNode(new Node(data));
+    }
+
+    public void removeNode(int data, String name) {
+        removeNode(new Node(data, name));
+    }
+
+    public boolean removeNode(Node node) {
+        if (root.equals(node)) {
+            root = null;
+            return true;
+        }
+        Node parent;
+        Node focusNode = root;
+        while (true) {
+            parent = focusNode;
+            if (parent == null) {
+                return false;
+            }
+            if (node.data < focusNode.data) {
+                focusNode = focusNode.left;
+                if (focusNode != null && focusNode.equals(node)) {
+                    parent.left = null;
+                    return true;
+                }
+            } else {
+                focusNode = focusNode.right;
+                if (focusNode != null && focusNode.equals(node)) {
+                    parent.right = null;
+                    return true;
+                }
+            }
+        }
+    }
+}
+
+class Node {
+    int data;
+    String name;
+    Node left;
+    Node right;
+
+    public Node(){}
+    
+    public Node(int data) {
+        this.data = data;
+        this.left = null;
+        this.right = null;
+    }
+    
+    public Node(String name) {
+        this.name = name;
+        this.left = null;
+        this.right = null;
+    }
+
+    public Node(int data, String name) {
+        this.data = data;
+        this.name = name;
+        this.left = null;
+        this.right = null;
+    }
+
+    public Node(int data, String name, Node left, Node right) {
+        this.data = data;
+        this.name = name;
+        this.left = left;
+        this.right = right;
+    }
+
+    // int basded
+//    public String toString() {
+//        String nameDescription = this.name != null ? this.name : "";
+//        return this.data + " "+nameDescription;
+//    }
+    
+    // String based
+    public String toString() {
+        String nameDescription = this.name != null ? this.name : "";
+        return nameDescription;
+    }
+
+    @Override
+    public boolean equals(Object object) {
+        if (this == object) {
+            return true;
+        }
+        if (!(object instanceof Node)) {
+            return false;
+        }
+        final Node other = (Node)object;
+        if (data != other.data) {
+            return false;
+        }
+        if (!(name == null ? other.name == null : name.equals(other.name))) {
+            return false;
+        }
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        final int PRIME = 37;
+        int result = 1;
+        result = PRIME * result + data;
+        result = PRIME * result + ((name == null) ? 0 : name.hashCode());
+        return result;
+    }
+
+}
+

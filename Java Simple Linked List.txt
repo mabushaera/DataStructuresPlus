@@ -1,0 +1,42 @@
+package j.datastructure.tutorial.linkedlist;
+
+public class LinkedList {
+    Node head;
+    
+    static class Node{
+        int data;
+        Node next;
+        public Node(int data){
+            this.data = data;
+        }
+    }
+    
+    public static void main(String[] args) {
+        Node n1 = new Node(1);
+        Node n2 = new Node(2);
+        Node n3 = new Node(3);
+        
+        LinkedList linkedList = new LinkedList();
+        linkedList.head = n1;
+        n1.next = n2;
+        n2.next = n3;
+        
+        linkedList.printList();
+        
+        
+   }
+    
+    public void printList(){
+        Node n = head;
+        while(n != null){
+            System.out.println(n.data);
+            n = n.next;
+        }
+        
+    }
+}
+/*results:
+1
+2
+3
+*/

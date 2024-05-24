@@ -1,0 +1,93 @@
+// https://www.youtube.com/watch?v=sn8BPJGRA8U&list=PL6Zs6LgrJj3uaeVkxa_-Dax_2XdmcfpQb&index=6
+package A002Queue;
+
+import java.util.NoSuchElementException;
+
+public class Queue{
+	Node front;
+	Node rear;
+	int size;
+	
+	class Node{
+		int data;
+		Node next;
+		
+		public Node(int data) {
+			this.data = data;
+			this.next = null;
+		}
+	}
+	
+	public Queue() {
+		this.front = null;
+		this.rear = null;
+		this.size = 0;
+	}
+	
+	
+	
+	public void enqueue(int data) {
+		Node temp = new Node(data);
+		if(this.isEmpty()) {
+			front = temp;
+		}else {
+			rear.next = temp;
+		}
+		rear = temp;
+		size++;
+	}
+	
+	public int dequeue() {
+		if(this.isEmpty()) {
+			throw new NoSuchElementException();
+		}
+		int val = front.data;
+		front = front.next;
+		size--;
+		if(front==null) rear=null;
+		return val;
+	}
+	
+	public boolean isEmpty() {
+		return size == 0;
+	}
+	
+	
+	public void print() {
+		Node temp = front;
+		while(temp != null) {
+			System.out.print(temp.data +" ");
+			temp = temp.next;
+		}
+		System.out.println();
+	}
+	
+	public static void main(String[] args) {
+		Queue q = new Queue();
+		q.enqueue(10);
+		q.enqueue(15);
+		q.enqueue(20);
+		
+		System.out.println("front: "+q.front.data);
+		System.out.println("rear: "+ q.rear.data);
+		System.out.println("size"+q.size);
+		
+		System.out.println();
+		
+		q.print();
+		
+		System.out.println();
+		
+		int val = q.dequeue();
+		System.out.println("deque: "+ val);
+		
+		val = q.dequeue();
+		System.out.println("deque: "+ val);
+		
+		val = q.dequeue();
+		System.out.println("deque: "+ val);
+		
+		val = q.dequeue();
+		System.out.println("deque: "+ val);
+	}
+}

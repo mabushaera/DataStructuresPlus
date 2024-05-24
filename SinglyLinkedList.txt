@@ -1,0 +1,470 @@
+package A000;
+
+import java.util.NoSuchElementException;
+
+
+/**
+ * //https://www.youtube.com/watch?v=FsFV_yGgTBA&list=PL6Zs6LgrJj3tFNF3RvHDAvZcgOrvGWNRi&index=35
+ * size, isEmpty, print, get => DONE
+ * addFirst, addLast, addAtIndex => DONE
+ * removeFirst, demoveAtIndex, removeLast, removeAll(int) => DONE
+ * contains => DONE
+ * reverse, findMiddlePoint, detectLoop
+ */
+public class SinglyLinkedList {
+	
+	Node head;
+	int size;
+	
+	class Node{
+		int data;
+		Node next;
+		
+		public Node(int data) {
+			this.data = data;
+			this.next = null;
+		}
+	}
+	
+	public SinglyLinkedList() {
+		this.head = null;
+		this.size = 0;
+	}
+	
+	public int size() {
+		return this.size;
+	}
+	
+	public boolean isEmpty() {
+		return head == null; 
+		// OR return size ==0;
+	}
+	
+	public void print() {
+		if(isEmpty()) {
+			System.out.println("list is empty");
+			return;
+		}
+		Node curr = head;
+		while(curr != null) {
+			System.out.print(curr.data +" ");
+			curr = curr.next;
+		}
+		System.out.println();
+	}
+	
+	public void addFirst(int data) {
+		Node node = new Node(data);
+		if(isEmpty()) {
+			head = node;
+			size++;
+			return;
+		}
+		
+		
+		node.next = head;
+		head = node;
+		size++;
+		
+	}
+	
+	public void addLast(int data) {
+		Node node = new Node(data);
+		if(isEmpty()) {
+			head = node;
+			size++;
+			return;
+		}
+		
+		Node curr = head;
+		Node prev = null;
+		while(curr != null) {
+			prev = curr;
+			curr = curr.next;
+		}
+		
+		prev.next = node;
+		size++;
+	}
+	
+	public void addAtIndex(int index, int data) throws IndexOutOfBoundsException{
+		Node node = new Node(data);
+		int counter = 0;
+		
+		if(isEmpty() && index == 0) {
+			head = node;
+			size++;
+		}else if(isEmpty() && index != 0) {
+			throw new IndexOutOfBoundsException();
+		}
+		
+		Node curr = head;
+		while(curr != null && counter < index-1) {
+			
+			curr = curr.next;
+			counter++;
+		}
+		
+		if(curr == null) throw new IndexOutOfBoundsException();
+		
+		node.next = curr.next;
+		curr.next = node;
+		size++;
+		
+	}
+	
+	public int get(int index) throws NoSuchElementException{
+		if(isEmpty()) throw new NoSuchElementException();
+		
+		Node curr = head;
+		int counter =0;
+		
+		while(curr != null && counter < index) {
+			curr = curr.next;
+			counter++;
+		}
+		
+		if(curr == null) throw new NoSuchElementException();
+								
+		return curr.data;
+	}
+	
+	
+	public boolean contains(int data) throws NoSuchElementException{
+		if(isEmpty()) throw new NoSuchElementException();
+		
+		Node curr = head;
+		while(curr != null) {
+			if(curr.data == data) return true;
+			curr = curr.next;
+		}
+		
+		return false;
+	}
+	
+	public boolean removeFirst() throws NoSuchElementException{
+		if(isEmpty()) throw new NoSuchElementException();
+		
+		head = head.next;
+		size--;
+		
+		return true;
+	}
+	
+	public boolean removeLast() throws NoSuchElementException{
+		if(isEmpty()) throw new NoSuchElementException();
+		if(size == 1) {
+			head = null;
+			size--;
+			return true;
+		}
+		
+		Node curr = head;
+		Node prev = null;
+		while(curr.next != null) {
+			prev = curr;
+			curr = curr.next;
+		}
+		
+		prev.next = null;
+		size--;
+		return true;
+	}
+	
+	public boolean removeAtIndex(int index) throws NoSuchElementException{
+		if(isEmpty()) throw new NoSuchElementException();
+		if(index == 0) {
+			head = head.next;
+			size--;
+			return true;
+		}
+		
+		if(size == 1) {
+			head = null;
+			size--;
+			return true;
+		}
+		
+		int counter = 0;
+		Node curr = head;
+		Node prev = null;
+		while(curr != null && counter < index) {
+			prev = curr;
+			curr = curr.next;
+			counter++;
+		}
+		
+		if(curr == null) throw new NoSuchElementException();
+		
+		prev.next = curr.next;
+		
+		return true;
+	}
+	
+	// will remove all notes of matching data
+	public boolean removeAllMatches(int data) throws NoSuchElementException{
+		boolean removed = false;
+		if(isEmpty()) throw new NoSuchElementException();
+		
+		// handle the case where head(s) should be removed.
+		while(head != null && head.data == data) {
+			head = head.next;
+			size--;
+			removed = true;
+		}
+		
+		Node curr = head;
+		Node prev = null;
+		while(curr != null) {
+			if(curr.data == data) {
+				prev.next = curr.next;
+				curr = curr.next;
+				removed = true;
+				size--;
+			}else {
+				prev = curr;
+				curr = curr.next;
+			}
+		}
+		
+		
+		
+		return removed;
+	}
+	
+	//https://www.youtube.com/watch?v=G0_I-ZF0S38
+	public void reverse() {
+		if(isEmpty()) return;
+		
+		Node curr = head;
+		Node next = null;
+		Node prev = null;
+		
+		while(curr != null) {
+			next = curr.next;
+			curr.next = prev;
+			prev = curr;
+			curr = next;
+		}
+		head = prev;
+		
+	}
+	
+	
+	public int findMiddlePoint() {
+		int mid = size/2;
+		Node curr = head;
+		int counter = 0;
+		while(curr != null && counter < mid) {
+			curr = curr.next;
+			counter++;
+		}
+		
+		return curr.data;
+	}
+	
+	/**
+	 * the given index is the index starting from the end
+	 * @param index
+	 * @return
+	 */
+	public int findNthElementFromEndOfList(int index) throws NoSuchElementException{
+		if(isEmpty()) throw new NoSuchElementException();
+		
+		int realIndex = size - index -1;
+		System.out.println("realIndex "+ realIndex);
+		Node curr = head;
+		int counter = 0;
+		while(curr != null && counter < realIndex) {
+			curr = curr.next;
+			counter++;
+		}
+		
+		if(curr == null) throw new NoSuchElementException();
+		
+		return curr.data;
+		
+	}
+	
+//	public static SinglyLinkedList createLoop() {
+//		SinglyLinkedList list = new SinglyLinkedList();
+//		Node n1 = new Node(1);
+//		Node n2 = new Node(2);
+//		Node n3 = new Node(3);
+//		Node n4 = new Node(4);
+//		Node n5 = new Node(5);
+//		n1.next = n2;
+//		n2.next = n3;
+//		n3.next = n4;
+//		n4.next = n5;
+//		n5.next = n1;
+//		list.head = n1;
+//		return list;				
+//	}
+	
+	public boolean detectLoop() {
+		Node slowPtr = head;
+		Node fastPtr = head;
+		while(slowPtr != null && fastPtr.next != null) {
+			slowPtr = slowPtr.next;
+			fastPtr = fastPtr.next.next;
+			if(slowPtr == fastPtr) {
+				return true;
+			}
+		}
+		
+		return false;
+	}
+	
+	public static void main(String[] args) {
+		SinglyLinkedList list = new SinglyLinkedList();
+		list.addFirst(1);
+		list.addFirst(2);
+		list.addFirst(3);
+		list.addFirst(0);
+		list.print();
+		System.out.println();
+		list.addLast(100);
+		list.print();
+		System.out.println();
+		
+		list.addAtIndex(3, 50);
+		list.print();
+		System.out.println();
+		
+		try {
+			int res = list.get(0);
+			System.out.println("res: "+ res);
+			
+			res = list.get(4);
+			System.out.println("res: "+ res);
+			
+			res = list.get(5);
+			System.out.println("res: "+ res);
+			
+			
+			res = list.get(6);
+			System.out.println("res: "+ res);
+			System.out.println();
+		}catch(NoSuchElementException e) {
+			System.out.println(e.getMessage());
+		}
+		
+		boolean contains = list.contains(400);
+		System.out.println("contains?: "+ contains);
+		
+		contains = list.contains(100);
+		System.out.println("contains?: "+ contains);
+		contains = list.contains(0);
+		System.out.println("contains?: "+ contains);
+		contains = list.contains(50);
+		System.out.println("contains?: "+ contains);
+		System.out.println();
+		System.out.println("---------");
+		
+		try {
+			list.print();
+			list.removeFirst();
+			list.print();
+			
+			
+			list = new SinglyLinkedList();
+			list.removeFirst();
+			System.out.println();
+			
+			
+		}catch(NoSuchElementException e) {
+			System.out.println("no such element: "+e.getMessage());
+		}
+		
+		list.addFirst(0);
+		list.print();
+		boolean removed = list.removeFirst();
+		System.out.println("removed first: "+ removed);
+		list.print();
+		
+		System.out.println("-------------");
+		list = new SinglyLinkedList();
+		list.addFirst(3);
+		list.addFirst(2);
+		list.addFirst(1);
+		list.addFirst(0);
+		list.print();
+		System.out.println("-----------------------------");
+		
+		list.print();
+		list.removeLast();
+		list.print();
+		int size = list.size();
+		System.out.println("size: "+size);
+		
+		list.removeLast();
+		list.print();
+		size = list.size();
+		System.out.println("size: "+size);
+		
+		list.removeLast();
+		list.print();
+		size = list.size();
+		System.out.println("size: "+size);
+		
+		list.removeLast();
+		list.print();
+		size = list.size();
+		System.out.println("size: "+size);
+		
+		try {
+			list.removeLast();
+			list.print();
+			size = list.size();
+			System.out.println("size: "+size);
+		}catch(NoSuchElementException e) {
+			System.out.println("no such element");
+		}
+		
+		System.out.println("--------------");
+		list = new SinglyLinkedList();
+		list.addFirst(0);
+		list.addFirst(1);
+		list.addFirst(2);
+		list.addFirst(3);
+		list.addFirst(4);
+		list.print();
+		list.removeAtIndex(3);
+		list.print();
+		list.removeAtIndex(0);
+		list.print();
+		
+		list.removeAtIndex(2);
+		list.print();
+		try {
+			list.removeAtIndex(2);
+			list.print();
+		}catch(NoSuchElementException e) {
+			System.out.println("No Such Element Exception");
+		}
+		
+		System.out.println("---------------------------");
+		list = new SinglyLinkedList();
+		list.addFirst(0);
+		list.addFirst(1);
+		list.addFirst(2);
+		list.addFirst(2);
+		list.addFirst(3);
+		list.addFirst(2);
+		list.addFirst(2);
+		list.addFirst(5);
+		list.addFirst(2);
+		list.print();
+		list.removeAllMatches(2);
+		list.print();
+		System.out.println();
+		
+		list.reverse();
+		list.print();
+		
+	}
+
+	
+	
+}

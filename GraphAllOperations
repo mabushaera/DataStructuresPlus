@@ -1,0 +1,772 @@
+package finals.latest;
+
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Queue;
+import java.util.Set;
+import java.util.Stack;
+
+enum GraphType {
+    DIRECTED,
+    BIDIRECTED,
+    HYBRID;
+}
+
+/*
+ * This Graph and Edges all arebidirectional by defaul, unless you specify that the graph or a specif edge is directed.
+ */
+class Vertex {
+    String data;
+    boolean isVisited;
+
+    public Vertex(String data) {
+        this.data = data;
+    }
+
+    public String toString() {
+        return this.data;
+    }
+
+    @Override
+    public boolean equals(Object object) {
+        if (this == object) {
+            return true;
+        }
+        if (!(object instanceof Vertex)) {
+            return false;
+        }
+        final Vertex other = (Vertex)object;
+        if (!(data == null ? other.data == null : data.equals(other.data))) {
+            return false;
+        }
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        final int PRIME = 37;
+        int result = 1;
+        result = PRIME * result + ((data == null) ? 0 : data.hashCode());
+        return result;
+    }
+}
+
+class Edge {
+    Vertex vertex1;
+    Vertex vertex2;
+    int weight;
+    String label;
+    boolean isDirected;
+    boolean isReverse;
+
+    public Edge(Vertex vertex1, Vertex vertex2) {
+        this.vertex1 = vertex1;
+        this.vertex2 = vertex2;
+
+    }
+
+    public Edge(Vertex vertex1, Vertex vertex2, int weight) {
+        this.vertex1 = vertex1;
+        this.vertex2 = vertex2;
+        this.weight = weight;
+    }
+
+    public Edge(Vertex vertex1, Vertex vertex2, int weight, String label) {
+        this.vertex1 = vertex1;
+        this.vertex2 = vertex2;
+        this.weight = weight;
+        this.label = label;
+    }
+
+    public Edge(Vertex vertex1, Vertex vertex2, int weight, boolean isDirected) {
+        this.vertex1 = vertex1;
+        this.vertex2 = vertex2;
+        this.weight = weight;
+        this.isDirected = isDirected;
+    }
+
+    public Edge(Vertex vertex1, Vertex vertex2, int weight, String label, boolean isDirected, boolean isReverse) {
+        this.vertex1 = vertex1;
+        this.vertex2 = vertex2;
+        this.weight = weight;
+        this.label = label;
+        this.isDirected = isDirected;
+        this.isReverse = isReverse;
+    }
+
+    //where 1-2 is not equal 2-1
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((vertex1 == null) ? 0 : vertex1.hashCode());
+        result = prime * result + ((vertex2 == null) ? 0 : vertex2.hashCode());
+        return result;
+    }
+
+    //where 1-2 is not equal 2-1
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        Edge other = (Edge)obj;
+        if (vertex1 == null) {
+            if (other.vertex1 != null)
+                return false;
+        } else if (!vertex1.equals(other.vertex1))
+            return false;
+        if (vertex2 == null) {
+            if (other.vertex2 != null)
+                return false;
+        } else if (!vertex2.equals(other.vertex2))
+            return false;
+        return true;
+    }
+
+    //    // where 1-2 equals 2-1
+    //    public boolean equals(Object o) {
+    //        if (o instanceof Edge && (((Edge)o).vertex1.equals(this.vertex1) && ((Edge)o).vertex2.equals(this.vertex2)) ||
+    //            (((Edge)o).vertex1.equals(this.vertex2) && ((Edge)o).vertex2.equals(this.vertex1))) {
+    //            return true;
+    //        }
+    //        return false;
+    //    }
+    //    // where 1-2 equals 2-1
+    //    @Override
+    //    public int hashCode() {
+    //        return 17;
+    //    }
+
+    @Override
+    public String toString() {
+        return "([" + vertex1 + "], [" + vertex2 + "])";
+    }
+}
+
+class Graph {
+    Map<Vertex, List<Edge>> adj;
+    List<Vertex> allVertices = new ArrayList<Vertex>();
+    List<Edge> allEdges = new ArrayList<Edge>();
+    GraphType graphType;
+
+    public Graph() { // by default the graph is bidirectional
+        adj = new LinkedHashMap<Vertex, List<Edge>>();
+    }
+
+    public Graph(GraphType graphType) {
+        adj = new LinkedHashMap<Vertex, List<Edge>>();
+        //this.isDirected = isDirected;
+        this.graphType = graphType;
+    }
+
+    public void addVertex(String data) {
+        Vertex vertex = new Vertex(data);
+        addVertex(vertex);
+    }
+
+    public void addVertex(Vertex vertex) {
+        if (!adj.containsKey(vertex)) {
+            adj.put(vertex, new LinkedList<Edge>());
+            allVertices.add(vertex);
+        }
+    }
+
+    public Vertex getVertex(String data) {
+        Vertex vertex = new Vertex(data);
+        if (adj.containsKey(vertex)) {
+            return vertex;
+        }
+        return null;
+    }
+
+    public void addEdge(String data1, String data2, int weight, String label, boolean isDirected) {
+        Vertex v1 = new Vertex(data1);
+        Vertex v2 = new Vertex(data2);
+        if (!adj.containsKey(v1)) {
+            addVertex(v1);
+        }
+        if (!adj.containsKey(v2)) {
+            addVertex(v2);
+        }
+        boolean isReverse = false;
+        Edge edge1 = new Edge(v1, v2, weight, label, isDirected, isReverse);
+        if(!adj.get(v1).contains(edge1)) {
+            adj.get(v1).add(edge1);
+            allEdges.add(edge1);
+        }
+
+        if (!isDirected) {
+            isReverse = true;
+            Edge edge2 = new Edge(v2, v1, weight, label, isDirected, isReverse);
+            if(!adj.get(v2).contains(edge2)) {
+                adj.get(v2).add(edge2);
+                allEdges.add(edge2);
+            }
+        }
+    }
+
+    public void printGraph() {
+        for (Map.Entry<Vertex, List<Edge>> entry : adj.entrySet()) {
+            Vertex v = entry.getKey();
+            System.out.print(v + " => ");
+            List<Edge> edges = entry.getValue();
+            for (Edge edge : edges) {
+                System.out.print("\t" + edge + "\n");
+            }
+            System.out.println();
+        }
+    }
+
+    public int getNumberOfUniqueEdges() { // for all types of graphs.
+        int noOfEdges = 0;
+        if (graphType.equals(GraphType.DIRECTED)) {
+            noOfEdges = allEdges.size();
+        }
+
+        if (graphType.equals(GraphType.BIDIRECTED) || graphType.equals(GraphType.HYBRID)) {
+            for (Edge edge : allEdges) {
+                if (!edge.isReverse) {
+                    noOfEdges++;
+                }
+            }
+        }
+        return noOfEdges;
+    }
+
+    public List<Edge> getAllUniqueEdges() {
+        List<Edge> uniqueEdges = new LinkedList<Edge>();
+        if (graphType.equals(GraphType.DIRECTED)) {
+            return allEdges;
+        }
+
+        if (graphType.equals(GraphType.BIDIRECTED) || graphType.equals(GraphType.HYBRID)) {
+            for (Edge edge : allEdges) {
+                if (!edge.isReverse)
+                    uniqueEdges.add(edge);
+            }
+        }
+
+        return uniqueEdges;
+    }
+
+    public int sumOfAllWeights() {
+        int sum = 0;
+        for (Edge edge : allEdges) {
+            sum += edge.weight;
+        }
+        return sum;
+    }
+
+    public int sumOfAllUniqueWeights() {
+        int sum = 0;
+        for (Edge edge : getAllUniqueEdges()) {
+            sum += edge.weight;
+        }
+        return sum;
+    }
+
+    /**
+     * The ides is to get the size of all vertices = 9 in our example
+     * loop through all edges, get v2 of each edge, add v2 to a set (unique v2's will be saved)
+     * 1 and 7 will not be there as they are only keys, they do not appear in the v2 of each v1-v2 edge.
+     * @return
+     */
+    public int getNoOfDisconnectedGraphs() {
+        Set<Vertex> s = new LinkedHashSet<Vertex>();
+        for (Edge edge : getAllUniqueEdges()) {
+            s.add(edge.vertex2);
+        }
+        return allVertices.size() - s.size();
+    }
+
+    public boolean areConnectedDirectly(Vertex vertex1, Vertex vertex2) {
+        for (Map.Entry<Vertex, List<Edge>> entry : adj.entrySet()) {
+            Vertex v = entry.getKey();
+            if (v.equals(vertex1)) {
+                List<Edge> edges = entry.getValue();
+                for (Edge edge : edges) {
+                    if (edge.vertex2.equals(vertex2)) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+    public boolean areConnectedThroughAnyPath(Vertex vertex1, Vertex vertex2) {
+        Stack<Vertex> stack = new Stack<Vertex>();
+        stack.push(vertex1);
+        while (!stack.isEmpty()) {
+            Vertex v = stack.pop();
+            List<Edge> edges = adj.get(v);
+            for (Edge edge : edges) {
+                stack.push(edge.vertex2);
+            }
+            if (stack.contains(vertex2)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public List<Edge> getAllEdgesOfVertex(Vertex vertex) {
+        return adj.get(vertex);
+    }
+
+    public List<Edge> getUniqueEdgesOfVertex(Vertex vertex) {
+        List<Edge> edges = new ArrayList<Edge>();
+        for (Edge edge : adj.get(vertex)) {
+            if (!edge.isReverse) {
+                edges.add(edge);
+            }
+        }
+        return edges;
+    }
+
+    /*
+    The below depthFirstSearch (in the uncommented code) will not work if you have discommeted components in the graph, that's why you need
+    to call the same function multiple times using the below recusrive way:
+    public List<Vertex> depthFirstSearch(Vertex root){
+		List<Vertex> result = new ArrayList<Vertex>();
+		Stack<Vertex> stack = new Stack<Vertex>();
+		Set<Vertex> set = new LinkedHashSet<Vertex>();
+		depthFirstSearch(root, result, stack, set);
+		
+		if(allVertices.size() > result.size()) {
+			for(Vertex v: allVertices) {
+			if(!set.contains(v))
+				depthFirstSearch(v, result, stack, set);
+			}
+		}
+		return result;
+	}
+	
+	public List<Vertex> depthFirstSearch(Vertex root, List<Vertex> result, Stack<Vertex> stack, Set<Vertex> set){
+		
+		stack.push(root);
+		while(!stack.isEmpty()) {
+			Vertex vertex = stack.pop();
+			if(!set.contains(vertex)) {
+				set.add(vertex);
+				result.add(vertex);
+			}
+			
+			List<Edge> edges = adj.get(vertex);
+			for(Edge edge: edges) {
+				if(!set.contains(edge.v2)) // added recently to prevent stuck when cycle.
+					stack.add(edge.v2);
+			}
+		}
+		
+		return result;
+	}
+}
+
+    */
+    public List<Vertex> depthFirstTraversalVertices(String root) {
+        List<Vertex> result = new ArrayList<Vertex>();
+        Vertex vertex = new Vertex(root);
+        Stack<Vertex> s = new Stack<Vertex>();
+        Set<Vertex> set = new LinkedHashSet<Vertex>();
+        s.push(vertex);
+        while (!s.isEmpty()) {
+            Vertex v = s.pop();
+            if (!set.contains(v)) {
+                set.add(v);
+                result.add(v);
+            }
+            List<Edge> edges = getUniqueEdgesOfVertex(v);
+            for (Edge edge : edges) {
+                s.push(edge.vertex2);
+            }
+        }
+        return result;
+    }
+
+    public List<Vertex> breadthFirstTraversalVertices(String root) {
+        Vertex vertex = new Vertex(root);
+        List<Vertex> result = new ArrayList<Vertex>();
+        Queue<Vertex> q = new LinkedList<Vertex>();
+        Set<Vertex> set = new LinkedHashSet<Vertex>();
+        q.offer(vertex);
+        while (!q.isEmpty()) {
+            Vertex v = q.poll();
+            if (!set.contains(v)) {
+                set.add(v);
+                result.add(v);
+            }
+            List<Edge> edges = getUniqueEdgesOfVertex(v);
+            for (Edge edge : edges) {
+                q.offer(edge.vertex2);
+            }
+        }
+
+        return result;
+    }
+
+    public int shortestPathUisngDijkistra(Vertex v1, Vertex v2) {
+        Map<Vertex, Table> map = new LinkedHashMap<Vertex, Table>();
+        List<Vertex> unvisited = allVertices;
+        List<Vertex> visited = new ArrayList<Vertex>();
+        for (Vertex vertex : allVertices) {
+            Table m = new Table();
+            if (vertex.equals(v1)) {
+                m.i = 0;
+            } else {
+                m.i = Integer.MAX_VALUE;
+            }
+            map.put(vertex, m);
+        }
+        System.out.println("------------------------");
+        for (Map.Entry<Vertex, Table> entry : map.entrySet()) {
+            Vertex v = entry.getKey();
+            Table table = entry.getValue();
+            System.out.print(v + " " + table + "\n");
+        }
+        System.out.println("------------------------");
+        for (Vertex v : unvisited) {
+            if (!visited.contains(v)) {
+                List<Edge> edges = getAllEdgesOfVertex(v);
+                for (Edge edge : edges) {
+                    Integer s1 = map.get(edge.vertex1).i;
+                    Integer s2 = map.get(edge.vertex2).i;
+                    Integer w = edge.weight + s1;
+                    if (w < s2) {
+                        map.put(edge.vertex2, new Table(edge.vertex1, w));
+                        visited.add(v);
+                    }
+                }
+            }
+        }
+
+        System.out.println("-------FINAL MAP-----------------");
+        for (Map.Entry<Vertex, Table> entry : map.entrySet()) {
+            Vertex v = entry.getKey();
+            Table table = entry.getValue();
+            System.out.print(v + " " + table + "\n");
+        }
+        System.out.println("------------------------");
+
+        return map.get(v2).i;
+
+    }
+
+    public int shortestPathUisngDijkistra2(Vertex v1, Vertex v2) {
+        Map<Vertex, Table> map = new LinkedHashMap<Vertex, Table>();
+        List<Vertex> unvisited = new ArrayList<Vertex>();
+        for (Vertex v : allVertices) {
+            unvisited.add(v);
+        }
+        List<Vertex> visited = new ArrayList<Vertex>();
+        for (Vertex vertex : allVertices) {
+            Table m = new Table();
+            if (vertex.equals(v1)) {
+                m.i = 0;
+            } else {
+                m.i = Integer.MAX_VALUE;
+            }
+            map.put(vertex, m);
+        }
+        Vertex vertex0 = unvisited.get(0);
+        int indexOfV1 = unvisited.indexOf(v1);
+
+        unvisited.set(0, v1);
+        unvisited.set(indexOfV1, vertex0);
+        for (Vertex v : unvisited) {
+            if (!visited.contains(v)) {
+                List<Edge> edges = getAllEdgesOfVertex(v);
+                for (Edge edge : edges) {
+                    Integer s1 = map.get(edge.vertex1).i;
+                    Integer s2 = map.get(edge.vertex2).i;
+                    Integer w = edge.weight + s1;
+                    if (w < s2) {
+                        map.put(edge.vertex2, new Table(edge.vertex1, w));
+                        visited.add(v);
+                    }
+                }
+            }
+        }
+        return map.get(v2).i;
+    }
+    
+    public List<Integer> getListOfDistancesSummedUp(Vertex root){
+        List<Integer> result = new ArrayList<Integer>();
+        Stack<Vertex> s = new Stack<Vertex>();
+        Set<Vertex> set = new LinkedHashSet<Vertex>();
+        int weightSum = 0;
+        s.add(root);
+        while(!s.isEmpty()){
+            Vertex v = s.pop();
+            if(!set.contains(v)){
+                set.add(v);
+            }
+            
+            List<Edge> edges = this.getAllEdgesOfVertex(v);
+            for(Edge edge: edges){
+                s.push(edge.vertex2);
+            }
+        }
+        
+        
+        
+        
+        return result;
+    }
+    
+}
+
+class Table {
+    Vertex vertex;
+    Integer i;
+
+    Table() {
+    }
+
+    Table(Vertex vertex, Integer i) {
+        this.vertex = vertex;
+        this.i = i;
+    }
+
+    public String toString() {
+        String result = i.toString() + " ";
+        if (vertex != null) {
+            result += vertex.toString();
+        }
+        return result;
+    }
+}
+
+public class GraphDemo {
+    public static void main(String[] args) {
+        //        Graph graph = new Graph(GraphType.BIDIRECTED);
+        //        graph.addVertex("1");
+        //        graph.addVertex("2");
+        //        graph.addVertex("3");
+        //        graph.addVertex("4");
+        //        graph.addVertex("5");
+        //        graph.addVertex("6");
+        //        graph.addVertex("7");
+        //        graph.addVertex("8");
+        //        graph.addVertex("9");
+        //
+        //        graph.addEdge("1", "2", 1, "", false);
+        //        graph.addEdge("1", "3", 2, "", false);
+        //        graph.addEdge("2", "4", 3, "", false);
+        //        graph.addEdge("3", "5", 4, "", false);
+        //        graph.addEdge("4", "6", 5, "", false);
+        //        graph.addEdge("5", "6", 6, "", false);
+        //
+        //        graph.addEdge("7", "8", 7, "", false);
+        //        graph.addEdge("8", "9", 8, "", false);
+        //
+        //
+        //        // Bidirectional Graph
+        //        // 1. print Graph
+        //        System.out.println("--------- ---------- BI Directional Graph ----------- ----------");
+        //        graph.printGraph();
+        //
+        //        // 2. No of Vertices
+        //        System.out.println("Number of Vertices: " + graph.allVertices.size());
+        //        System.out.println("All Vertices are: " + graph.allVertices);
+        //
+        //        // 3. No of Edges
+        //        System.out.println("Number of Edges: " + graph.allEdges.size());
+        //        System.out.println("All Edges are: " + graph.allEdges);
+        //
+        //        // 4. No of Unique Edges
+        //        System.out.println("No of Unique Edges: " + graph.getNumberOfUniqueEdges());
+        //
+        //        // 5. get all unique edges
+        //        List<Edge> uniqueEdges = graph.getAllUniqueEdges();
+        //        System.out.println("Unique Edges are: " + uniqueEdges);
+        //
+        //        //6. weights sum
+        //        System.out.println("Sum of All Weights: "+ graph.sumOfAllWeights());
+        //        System.out.println("Sum of All Unique Weights: "+ graph.sumOfAllUniqueWeights());
+        //
+        //        // 7. No of disconnected Graphs
+        //        System.out.println("Number of Disconnected Graphs: "+graph.getNoOfDisconnectedGraphs());
+        //
+        //        //8. are directly connected
+        //        System.out.println("[1,2] directly connected? "+graph.areConnectedDirectly(new Vertex("1"), new Vertex("2")));
+        //        System.out.println("[6,7] directly connected? "+graph.areConnectedDirectly(new Vertex("6"), new Vertex("7")));
+        //        System.out.println("[6,4] directly connected? "+graph.areConnectedDirectly(new Vertex("6"), new Vertex("4")));
+        //
+        //        //9. are connected through any path
+        //        System.out.println("[1,2] connected throgh any path? "+graph.areConnectedDirectly(new Vertex("1"), new Vertex("2")));
+        //        System.out.println("[6,7] connected throgh any path? "+graph.areConnectedDirectly(new Vertex("6"), new Vertex("7")));
+        //        System.out.println("[6,4] connected throgh any path? "+graph.areConnectedDirectly(new Vertex("6"), new Vertex("4")));
+        //        System.out.println("[1,9] connected throgh any path? "+graph.areConnectedDirectly(new Vertex("1"), new Vertex("9")));
+        //
+        //        // 10. depth first traversal for vertices (see order)
+        //        System.out.println("Depth First Traversal - Vertices: "+graph.depthFirstTraversalVertices("1"));
+        //
+        //        // 11. breadth first traversal for vertices (see order)
+        //        System.out.println("Breadth First Traversal - Vertices: "+graph.breadthFirstTraversalVertices("1"));
+        //
+        //        // 12 shortest path using Dijikstras
+        //        System.out.println("hortest path using Dijikstras : "+ graph.shortestPathUisngDijkistra(new Vertex("1"), new Vertex("6")));
+
+//        Graph graph0001 = new Graph(GraphType.BIDIRECTED);
+//        graph0001.addEdge("A", "B", 6, "", false);
+//        graph0001.addEdge("A", "D", 1, "", false);
+//        graph0001.addEdge("D", "B", 2, "", false);
+//        graph0001.addEdge("D", "E", 1, "", false);
+//        graph0001.addEdge("B", "E", 2, "", false);
+//        graph0001.addEdge("B", "C", 5, "", false);
+//        graph0001.addEdge("E", "C", 5, "", false);
+//
+//        System.out.println("hortest path using Dijikstras for graph0001: A-B: " +
+//                           graph0001.shortestPathUisngDijkistra2(new Vertex("A"), new Vertex("B")));
+//        System.out.println("hortest path using Dijikstras for graph0001: A-D: " +
+//                           graph0001.shortestPathUisngDijkistra2(new Vertex("A"), new Vertex("D")));
+//        System.out.println("hortest path using Dijikstras for graph0001: A-E: " +
+//                           graph0001.shortestPathUisngDijkistra2(new Vertex("A"), new Vertex("E")));
+//        System.out.println("hortest path using Dijikstras for graph0001: A-C: " +
+//                           graph0001.shortestPathUisngDijkistra2(new Vertex("A"), new Vertex("C")));
+//        System.out.println("hortest path using Dijikstras for graph0001: D-E: " +
+//                           graph0001.shortestPathUisngDijkistra2(new Vertex("D"), new Vertex("E")));
+//        System.out.println("hortest path using Dijikstras for graph0001: B-E: " +
+//                           graph0001.shortestPathUisngDijkistra2(new Vertex("B"), new Vertex("E")));
+//        System.out.println("hortest path using Dijikstras for graph0001: A-C: " +
+//                           graph0001.shortestPathUisngDijkistra2(new Vertex("A"), new Vertex("C")));
+//        System.out.println("hortest path using Dijikstras for graph0001: C-D: " +
+//                           graph0001.shortestPathUisngDijkistra2(new Vertex("C"), new Vertex("D")));
+        
+        
+        Graph graph0002 = new Graph(GraphType.BIDIRECTED);
+        graph0002.addEdge("1", "2", 6, "", false);
+        graph0002.addEdge("2", "3", 6, "", false);
+        graph0002.addEdge("3", "4", 6, "", false);
+        graph0002.addEdge("1", "5", 6, "", false);
+        graph0002.addVertex("6");
+        List<Integer> result = graph0002.getListOfDistancesSummedUp(new Vertex("1"));
+        System.out.println(result);
+        
+        
+
+        //        System.out.println("--------- ---------- Directed Graph ----------- ----------");
+        //
+        //        Graph graph1 = new Graph(GraphType.DIRECTED);
+        //        graph1.addVertex("1");
+        //        graph1.addVertex("2");
+        //        graph1.addVertex("3");
+        //        graph1.addVertex("4");
+        //        graph1.addVertex("5");
+        //        graph1.addVertex("6");
+        //        graph1.addVertex("7");
+        //        graph1.addVertex("8");
+        //        graph1.addVertex("9");
+        //
+        //        graph1.addEdge("1", "2", 1, "", true);
+        //        graph1.addEdge("1", "3", 2, "", true);
+        //        graph1.addEdge("2", "4", 3, "", true);
+        //        graph1.addEdge("3", "5", 4, "", true);
+        //        graph1.addEdge("4", "6", 5, "", true);
+        //        graph1.addEdge("5", "6", 6, "", true);
+        //
+        //        graph1.addEdge("7", "8", 7, "", true);
+        //        graph1.addEdge("8", "9", 8, "", true);
+        //
+        //        // direct graph
+        //        // 1. print graph
+        //        graph1.printGraph();
+        //
+        //        // 2. No of Vertices
+        //        System.out.println("Number of Vertices: " + graph1.allVertices.size());
+        //        System.out.println("All Vertices are: " + graph1.allVertices);
+        //
+        //        // 3. No of Edges
+        //        System.out.println("Number of Edges: " + graph1.allEdges.size());
+        //        System.out.println("All Edges are: " + graph1.allEdges);
+        //
+        //        // 4. No of Unique Edges
+        //        System.out.println("No of Unique Edges: " + graph1.getNumberOfUniqueEdges());
+        //
+        //        // 5. get all unique edges
+        //        List<Edge> uniqueEdgesg = graph1.getAllUniqueEdges();
+        //        System.out.println("Unique Edges are: " + uniqueEdgesg);
+        //
+        //        //6. weights sum
+        //        System.out.println("Sum of All Weights: "+ graph1.sumOfAllWeights());
+        //        System.out.println("Sum of All Unique Weights: "+ graph1.sumOfAllUniqueWeights());
+        //
+        //        // 7. No of disconnected Graphs
+        //        System.out.println("Number of Disconnected Graphs: "+graph1.getNoOfDisconnectedGraphs());
+        //
+        //        //8. are directly connected
+        //        System.out.println("[1,2] directly connected? "+graph1.areConnectedDirectly(new Vertex("1"), new Vertex("2")));
+        //        System.out.println("[6,7] directly connected? "+graph1.areConnectedDirectly(new Vertex("6"), new Vertex("7")));
+        //        System.out.println("[6,4] directly connected? "+graph1.areConnectedDirectly(new Vertex("6"), new Vertex("4")));
+        //
+        //
+        //        //9. are connected through any path
+        //        System.out.println("[1,2] connected throgh any path? "+graph1.areConnectedDirectly(new Vertex("1"), new Vertex("2")));
+        //        System.out.println("[6,7] connected throgh any path? "+graph1.areConnectedDirectly(new Vertex("6"), new Vertex("7")));
+        //        System.out.println("[6,4] connected throgh any path? "+graph1.areConnectedDirectly(new Vertex("6"), new Vertex("4")));
+        //        System.out.println("[1,9] connected throgh any path? "+graph1.areConnectedDirectly(new Vertex("1"), new Vertex("9")));
+        //
+        //        System.out.println("--------- ---------- Hybrid Graph ----------- ----------");
+        //
+        //        // Hybrid, some edges directed and others are bidirectional
+        //        Graph graph2 = new Graph(GraphType.HYBRID);
+        //        graph2.addEdge("1", "2", 1, "", true);
+        //        graph2.addEdge("1", "3", 2, "", true);
+        //        graph2.addEdge("2", "4", 3, "", false);
+        //        graph2.addEdge("4", "6", 4, "", false);
+        //        graph2.addEdge("3", "5", 5, "", true);
+        //        graph2.addEdge("5", "6", 6, "", true);
+        //
+        //        graph2.addEdge("7", "8", 7, "", true);
+        //        graph2.addEdge("8", "9", 8, "", false);
+        //
+        //
+        //        // hybrid graph
+        //        // 1. print graph
+        //        graph2.printGraph();
+        //
+        //        // 2. No of Vertices
+        //        System.out.println("Number of Vertices: " + graph2.allVertices.size());
+        //        System.out.println("All Vertices are: " + graph2.allVertices);
+        //
+        //        // 3. No of Edges
+        //        System.out.println("Number of Edges: " + graph2.allEdges.size());
+        //        System.out.println("All Edges are: " + graph2.allEdges);
+        //
+        //        // 4. No of Unique Edges
+        //        System.out.println("No of Unique Edges: " + graph2.getNumberOfUniqueEdges());
+        //        // 5. get all unique edges
+        //        List<Edge> uniqueEdgesg2 = graph2.getAllUniqueEdges();
+        //        System.out.println("Unique Edges are: " + uniqueEdgesg2);
+        //
+        //        //6. weights sum
+        //        System.out.println("Sum of All Weights: "+ graph2.sumOfAllWeights());
+        //        System.out.println("Sum of All Unique Weights: "+ graph2.sumOfAllUniqueWeights());
+        //
+        //        // 7. No of disconnected Graphs
+        //        System.out.println("Number of Disconnected Graphs: "+graph2.getNoOfDisconnectedGraphs());
+        //
+        //        //8. are directly connected
+        //        System.out.println("[1,2] directly connected? "+graph2.areConnectedDirectly(new Vertex("1"), new Vertex("2")));
+        //        System.out.println("[6,7] directly connected? "+graph2.areConnectedDirectly(new Vertex("6"), new Vertex("7")));
+        //        System.out.println("[6,4] directly connected? "+graph2.areConnectedDirectly(new Vertex("6"), new Vertex("4")));
+        //
+        //
+        //
+        //        //9. are connected through any path
+        //        System.out.println("[1,2] connected throgh any path? "+graph2.areConnectedDirectly(new Vertex("1"), new Vertex("2")));
+        //        System.out.println("[6,7] connected throgh any path? "+graph2.areConnectedDirectly(new Vertex("6"), new Vertex("7")));
+        //        System.out.println("[6,4] connected throgh any path? "+graph2.areConnectedDirectly(new Vertex("6"), new Vertex("4")));
+        //        System.out.println("[1,9] connected throgh any path? "+graph2.areConnectedDirectly(new Vertex("1"), new Vertex("9")));
+    }
+}
+

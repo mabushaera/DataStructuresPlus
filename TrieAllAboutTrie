@@ -1,0 +1,277 @@
+package finals.latest;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
+
+class TrieNode{
+    char data;
+    LinkedList<TrieNode> children;
+    TrieNode parent;
+    boolean endOfWord;
+    int size;
+
+    public TrieNode(char c) {
+        data = c;
+        children = new LinkedList<TrieNode>();
+        endOfWord = false;
+        size = 0;
+    }
+
+    public TrieNode getChild(char c) {
+        if (children != null) {
+            for (TrieNode node : children) {
+                if (node.data == c) {
+                    return node;
+                }
+            }
+        }
+        return null;
+    }
+    
+    public List<String> getWords(){            
+        List<String> list = new ArrayList<String>();
+        
+        if (this.endOfWord) { // if the node is end of word, it adds the whole word to the list
+            list.add(this.toString());
+        }
+        
+        for(TrieNode node : children){
+            list.addAll(node.getWords());    
+        }
+        Collections.sort(list);
+        return list;
+    }
+    
+    
+    public String toString(){
+        if(parent == null){
+            return " ";
+        }else{
+            return parent.toString() + new String(new char[]{data});
+        }
+    }
+}
+
+class Trie {
+    TrieNode root;
+
+    public Trie() {
+        root = new TrieNode(' ');
+    }
+
+    public void insert(String word) {
+        
+        TrieNode current = root;
+        for (int i = 0; i < word.length(); i++) {
+            char ch = word.charAt(i);
+            TrieNode node = current.getChild(ch);
+            if (node == null) {
+                node = new TrieNode(ch);
+                node.parent = current;
+                current.children.add(node);
+            }
+            current = node;
+            current.size++;
+        }
+        current.endOfWord = true;
+    }
+
+    public boolean searchExact(String word) {
+        TrieNode current = root;
+        for (int i = 0; i < word.length(); i++) {
+            char ch = word.charAt(i);
+            TrieNode node = current.getChild(ch);
+            if (node == null) {
+                return false;
+            }
+            current = node;
+        }
+        return current.endOfWord;
+    }
+
+    public int searchStartWith(String word) {
+        TrieNode current = root;
+        for (int i = 0; i < word.length(); i++) {
+            char ch = word.charAt(i);
+            TrieNode node = current.getChild(ch);
+            if (node == null) {
+                return 0;
+            }
+            current = node;
+        }
+        return current.size;
+    }
+    
+    public boolean delete(String word){
+        return delete(word, root, 0);
+    }
+    
+    public boolean delete(String word, TrieNode current, int index){
+        if (index == word.length()) {
+            if (!current.endOfWord) {
+                return false;
+            }
+            current.endOfWord = false;
+            //if current has no other mapping then return true
+            return current.children.size() == 0;
+        }
+        char ch = word.charAt(index);
+        TrieNode node = current.getChild(ch);
+        if (node == null) {
+            return false;
+        }
+        boolean shouldDeleteCurrentNode = delete(word,node ,index + 1);
+
+        //if true is returned then delete the mapping of character and trienode reference from map.
+        if (shouldDeleteCurrentNode) {
+            current.children.remove(node);
+            //return true if no mappings are left in the map.
+            return current.children.size() == 0;
+        }
+        return false;
+    }
+    
+    public List<String> autocomplete(String word){
+        TrieNode last = root;
+        for(int i = 0 ; i < word.length() ; i++){
+            char ch = word.charAt(i);
+            TrieNode node = last.getChild(ch);
+            if(node == null){
+                return new ArrayList<String>();
+            }
+            last = node;
+        }
+        
+        return last.getWords();
+    }
+    
+    
+    /**
+     * return a word in the dictionary (should be a word) and should be the longest match with the input
+     Let the dictionary contains the following words:
+     {are, area, base, cat, cater, children, basement}
+
+     Below are some input/output examples:
+     --------------------------------------
+     Input String            Output
+     --------------------------------------
+     caterer                 cater
+     basemexy                base
+     child                   < Empty >
+     */
+    public String longestPrefixWord(String word){
+        List<String> words = new ArrayList<String>();
+        String str = "";
+        TrieNode current = root;
+        for(int i = 0 ; i < word.length() ; i++){
+            char ch = word.charAt(i);
+            TrieNode node = current.getChild(ch);
+            if(node == null){
+                break;
+            }
+            if(node != null){
+                str+=ch;
+                current = node;
+            }
+            if(current.endOfWord){
+                words.add(str);
+            }
+        }
+    
+        int maxLength = Integer.MIN_VALUE;
+        String result = "";
+        for(String s: words){
+            if(s.length() > maxLength){
+                result = s;
+            }
+        }
+        return result;
+    }
+    
+    public boolean searchStartWithRecursive(String word) {
+        return searchStartWithRec(root, word, 0);
+    }
+
+    private boolean searchStartWithRec(TrieNode current, String word, int index) {
+        if (index == word.length()) {
+            return current.size > 0;
+        }
+
+        char ch = word.charAt(index);
+        TrieNode node = current.getChild(ch);
+        if (node == null) {
+            return false;
+        }
+        return searchStartWithRec(node, word, index + 1);
+
+    }
+
+    public boolean searchRecursive(String word) {
+        return searchRec(root, word, 0);
+    }
+
+    private boolean searchRec(TrieNode current, String word, int index) {
+        if (index == word.length()) {
+            return current.endOfWord;
+        }
+
+        char ch = word.charAt(index);
+        TrieNode node = current.getChild(ch);
+        if (node == null) {
+            return false;
+        }
+        return searchRec(node, word, index + 1);
+
+    }
+    
+}
+
+public class TrieNodeAutoSuggest {
+    public static void main(String[] args) {
+        Trie t = new Trie();
+        t.insert("amazon");
+        t.insert("amazon prime");
+        t.insert("amazon good");
+        t.insert("amazing");
+        t.insert("ali");
+        
+        //1. 
+        System.out.println(t.searchExact("amazing"));
+        //2. 
+        System.out.println(t.searchStartWith("amaz"));
+        
+        //3. search Recursive
+        System.out.println(t.searchRecursive("amazon"));
+        
+        //4. search startWith Rec
+        System.out.println(t.searchStartWithRecursive("amaz"));
+        
+        //5.
+        System.out.println(t.searchExact("ali"));
+        t.delete("ali");
+        System.out.println(t.searchExact("ali"));
+        
+        //6.
+        List<String> suggestions = t.autocomplete("amazon");
+        System.out.println(suggestions);
+        
+        // 7. longest prefixc word
+        //  {are, area, base, cat, cater, children, basement}
+        Trie t2 = new Trie();
+        t2.insert("are");
+        t2.insert("area");
+        t2.insert("bas");
+        t2.insert("base");
+        t2.insert("cat");
+        t2.insert("cater");
+        t2.insert("children");
+        t2.insert("basement");
+        String result = t2.longestPrefixWord("caterer");
+        System.out.println("result : "+ result);
+        
+        
+        
+    }
+}

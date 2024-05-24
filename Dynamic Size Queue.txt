@@ -1,0 +1,104 @@
+/*
+This is a queue to store integers, you can create it the same exact way to store any kind of objects like Node, Person
+I think you need to override the toString method to print the attributes of the object when enqueing or dequeing
+*/
+package j.datastructure.tutorial.queue.dynamicsize;
+
+public class IntQueue {
+    private int[] queue;
+    private int size;
+    private int rear;
+    private int front;
+    
+    public IntQueue(int size){
+        this.size = size;
+        queue = new int[this.size];
+        front = -1;
+        rear = 0;
+    }
+    
+    public void enqueue(int item){
+        if(isFull()){
+            increaseSizeByOne();
+            System.out.println("size increased by one");
+        }
+        front++;
+        queue[front] = item;
+        System.out.println("iteme "+ item+" enqueued");
+    }
+    
+    public boolean isFull(){
+        return front == queue.length - 1;    
+    }
+    
+    public void increaseSizeByOne(){
+        int[] newQueue = new int[queue.length +1];
+        for(int i = 0 ; i < queue.length ; i++){
+            newQueue[i] = queue[i];
+        }        
+        queue = newQueue;
+    }
+    
+    public void increaseSizeByDouble(){
+        int[] newQueue = new int[queue.length *2];
+        for(int i = 0 ; i < queue.length ; i++){
+            newQueue[i] = queue[i];
+        }        
+        queue = newQueue;
+    }
+    
+    public int dequeue() throws Exception{
+        if(isEmpty()){
+            throw new Exception("queue is empty, can't dequeue elemenet.");
+        }
+        int value = queue[rear];
+        rear++;
+        return value;
+    }
+    
+    public boolean isEmpty(){
+        return front == rear-1;        
+    }        
+}
+
+package j.datastructure.tutorial.queue.dynamicsize;
+
+public class Demo {
+    public static void main(String[] args) {
+        IntQueue queue = new IntQueue(4);
+        queue.enqueue(1);
+        queue.enqueue(2);
+        queue.enqueue(3);
+        queue.enqueue(4);
+        queue.enqueue(5);
+        
+        try{
+            System.out.println(queue.dequeue());
+            System.out.println(queue.dequeue());
+            System.out.println(queue.dequeue());
+            System.out.println(queue.dequeue());
+            System.out.println(queue.dequeue());
+            System.out.println(queue.dequeue());
+        }catch(Exception e){
+            System.out.println(e.getMessage());
+        }
+    }
+}
+
+
+/*
+Results:
+iteme 1 enqueued
+iteme 2 enqueued
+iteme 3 enqueued
+iteme 4 enqueued
+size increased by one
+iteme 5 enqueued
+1
+2
+3
+4
+5
+queue is empty, can't dequeue elemenet.
+
+*/

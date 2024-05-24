@@ -1,0 +1,123 @@
+input:
+6
+12
+4
+5
+3
+8
+7
+
+output:
+12.0
+8.0
+5.0
+4.5
+5.0
+6.0
+
+
+package amazon.interview.practice.runningmedian;
+
+import java.io.*;
+import java.math.*;
+import java.text.*;
+import java.util.*;
+import java.util.regex.*;
+
+public class Solution {
+
+    /*
+     * Complete the runningMedian function below.
+     */
+    static double[] runningMedian(int[] a) {
+    	int size = a.length;
+    	double[] result = new double[size];
+    	
+    	PriorityQueue<Integer> maxHeap = new PriorityQueue<Integer>(new Comparator<Integer>() {
+    		public int compare(Integer a1, Integer a2) {
+    			return -1 * a1.compareTo(a2);
+    		}
+    	});
+    	
+    	PriorityQueue<Integer> minHeap = new PriorityQueue<Integer>(new Comparator<Integer>() {
+    		public int compare(Integer a1, Integer a2) {
+    			return a1.compareTo(a2);
+    		}
+    	});
+    	
+    	
+    	
+    	for(int i = 0 ; i < size ; i++) {
+    		addNumber(a[i], minHeap, maxHeap);
+    		balanceHeaps(minHeap, maxHeap);
+    		result[i] = getRunningMedian(minHeap, maxHeap);
+    	}
+    	
+    	
+    	return result;
+    }
+    
+    private static void addNumber(int number, PriorityQueue<Integer> minHeap, PriorityQueue<Integer> maxHeap) {
+    	if(maxHeap.isEmpty() || number < maxHeap.peek()) {
+    		maxHeap.add(number);
+    	}else {
+    		minHeap.add(number);
+    	}
+    }
+    
+    private static void balanceHeaps(PriorityQueue<Integer> minHeap, PriorityQueue<Integer> maxHeap) {
+    	PriorityQueue<Integer> smaller = maxHeap.size() < minHeap.size() ? maxHeap: minHeap;
+    	PriorityQueue<Integer> bigger = maxHeap.size() < minHeap.size() ? minHeap: maxHeap;
+    	
+    	if(bigger.size() - smaller.size() >= 2) {
+    		smaller.add(bigger.poll());
+    	}
+    }
+    
+    
+    private static double getRunningMedian(PriorityQueue<Integer> minHeap, PriorityQueue<Integer> maxHeap) {
+    	PriorityQueue<Integer> smaller = maxHeap.size() < minHeap.size() ? maxHeap: minHeap;
+    	PriorityQueue<Integer> bigger = maxHeap.size() < minHeap.size() ? minHeap: maxHeap;
+    	
+    	if(bigger.size() == smaller.size()) {
+    		return (double)(bigger.peek() + smaller.peek() )/ 2;
+    	}else {
+    		return bigger.peek();
+    	}
+    
+    }
+
+    private static final Scanner scanner = new Scanner(System.in);
+
+    public static void main(String[] args) throws IOException {
+//        BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(System.getenv("OUTPUT_PATH")));
+
+        int aCount = Integer.parseInt(scanner.nextLine().trim());
+
+        int[] a = new int[aCount];
+
+        for (int aItr = 0; aItr < aCount; aItr++) {
+            int aItem = Integer.parseInt(scanner.nextLine().trim());
+            a[aItr] = aItem;
+        }
+
+        double[] result = runningMedian(a);
+        
+        for(int i = 0 ; i < result.length ; i++) {
+        	System.out.print(result[i] + " ");
+        }
+        
+//
+//        for (int resultItr = 0; resultItr < result.length; resultItr++) {
+//            bufferedWriter.write(String.valueOf(result[resultItr]));
+//
+//            if (resultItr != result.length - 1) {
+//                bufferedWriter.write("\n");
+//            }
+//        }
+//
+//        bufferedWriter.newLine();
+//
+//        bufferedWriter.close();
+    }
+}

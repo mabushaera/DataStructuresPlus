@@ -1,0 +1,112 @@
+package A001Stack;
+//https://www.youtube.com/watch?v=Hxvn3IkE5SM&list=PL6Zs6LgrJj3vWOf01wMHiTy9IFufptfG3&index=1
+import java.util.NoSuchElementException;
+
+public class Stack{
+	
+	Node top;
+	int size;
+	
+	class Node{
+		int data;
+		Node next;
+		
+		public Node(int data) {
+			this.data = data;
+			this.next = null;
+		}				
+	}
+	
+	
+	public Stack() {
+		this.top = null;
+		this.size = 0;
+	}
+	
+	public void push(int data) {
+		Node temp = new Node(data);
+		temp.next = top; // in the first node inserted top will be null, but on the second one it will be the
+		// previous top, so we keep inserting at the beginning.
+		top = temp;
+		size++;
+		System.out.println("pushed: "+ data );
+	}
+	
+	public int pop() {
+		if(this.isEmpty()) {
+			throw new NoSuchElementException();
+		}
+		
+		int value = top.data;
+		System.out.println("dequeue: "+ value);
+		top = top.next;
+		size--;
+		
+		return value;
+		
+	}
+	
+	public boolean isEmpty() {
+		return size == 0;
+	}
+	
+	public int size() {
+		return size;		
+	}
+	
+	public int peek() {
+		int res= top.data;
+		System.out.println("peek: "+ res);
+		return res;
+	}
+	
+	
+	public void print() {
+		Node temp = top;
+		while(temp != null) {
+			System.out.print(temp.data + " ");
+			temp = temp.next;
+		}
+		System.out.println();
+	}
+	
+	
+	public static void main(String[] args) {
+		Stack stack  = new Stack();
+		System.out.println("size: "+stack.size);
+		System.out.println("empty: "+stack.isEmpty());
+		
+		stack.push(10);
+		System.out.println("size: "+stack.size);
+		System.out.println("empty: "+stack.isEmpty());
+		
+		stack.push(15);
+		System.out.println("size: "+stack.size);
+		System.out.println("empty: "+stack.isEmpty());
+		
+		stack.push(20);
+		System.out.println("size: "+stack.size);
+		System.out.println("empty: "+stack.isEmpty());
+		
+		stack.peek();
+		
+		stack.print();
+		
+		stack.pop();
+		System.out.println("size: "+stack.size);
+		System.out.println("empty: "+stack.isEmpty());
+		
+		stack.pop();
+		System.out.println("size: "+stack.size);
+		System.out.println("empty: "+stack.isEmpty());
+		
+		stack.pop();
+		System.out.println("size: "+stack.size);
+		System.out.println("empty: "+stack.isEmpty());
+		
+		stack.pop();
+		System.out.println("size: "+stack.size);
+		System.out.println("empty: "+stack.isEmpty());
+	}
+	
+}

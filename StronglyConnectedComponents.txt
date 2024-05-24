@@ -1,0 +1,326 @@
+/*
+ *@auther Mohammad Abu-Shaira
+ *@course: CSI 334401 - Introduction to Algorithms
+ *@dr: Fendt, Matthew
+ *@assignment: Program 2
+ *@desc: Characters in Star Wars each speak a language, but they typically understand a lot more languages that they don’t or can’t speak. For example, Han Solo might speak in Galactic Basic and Chewbacca might respond in Shyriiwook; since they each understand the language spoken by the other, they can communicate just fine like this.
+ *We’ll say two characters can converse if they can exchange messages in both directions. Even if they didn’t understand each other’s languages, two characters can still converse as long as there is a sequence of characters who could translate for them through a sequence of intermediate languages. For example, Jabba the Hutt and R2D2 might be able to converse with some help. Maybe when Jabba spoke in Huttese, Boba Fett could translate to Basic, which R2D2 understands. When R2D2 replies in Binary, maybe Luke could translate to Basic and then Bib Fortuna could translate back to Huttese for Jabba.
+ *In Star Wars Episode IV, there’s a scene with a lot of different characters in a cantina, all speaking different languages. Some pairs of characters may not be able to converse (even if others in the cantina are willing to serve as translators). This can lead to all kinds of problems, fights, questions over who shot first, etc. You’re going to help by asking some of the patrons to leave. The cantina is a business, so you’d like to ask as few as possible to leave. You need to determine the size of the smallest set of characters S such that if all the characters in S leave, all pairs of remaining characters can converse.
+ *For example, in the first sample input below, Chewbacca and Grakchawwaa can converse, but nobody else understands Shyriiwook, so they can’t converse with others in the bar. If they leave, everyone else can converse. In the second sample input, Fran and Ian can converse, as can Polly and Spencer, but no other pairs of characters can converse, so either everyone but Polly and Spencer must leave or everyone but Fran and Ian.
+ *@input: Input starts with a positive integer, 1≤N≤100, the number of characters in the cantina. This is followed by N lines, each line describing a character. Each of these N lines starts with the character’s name (which is distinct), then the language that character speaks, then a list of 0 to 20 additional languages the character understands but doesn’t speak. All characters understand the language they speak. All character and language names are sequences of 1 to 15 letters (a-z and A-Z), numbers, and hyphens. Character names and languages are separated by single spaces.
+ *@output: Print a line of output giving the size of the smallest set of characters S that should be asked to leave so that all remaining pairs of characters can converse.
+ *@sample.run: 
+ *
+ *Sample Input 1
+ *7
+ *Jabba-the-Hutt Huttese
+ *Bib-Fortuna Huttese Basic
+ *Boba-Fett Basic Huttese
+ *Chewbacca Shyriiwook Basic
+ *Luke Basic Jawaese Binary
+ *Grakchawwaa Shyriiwook Basic Jawaese
+ *R2D2 Binary Basic
+ *
+ *Sample Output 1
+ *2
+ *
+ *Sample Input 2
+ *6
+ *Fran French Italian
+ *Enid English German
+ *George German Italian
+ *Ian Italian French Spanish
+ *Spencer Spanish Portugese
+ *Polly Portugese Spanish
+ *
+ *Sample Output 2
+ *4    
+ */
+
+package baylor.edu;
+
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Scanner;
+import java.util.Set;
+import java.util.Stack;
+
+enum GraphType {
+	DIRECTED, BIDIRECTED;
+}
+
+class Vertex {
+	String data;
+	boolean isVisited;
+
+	public Vertex(String data) {
+		this.data = data;
+	}
+
+	public String toString() {
+		return "(" + this.data + ")";
+	}
+
+	public boolean equals(Object o) {
+		if (o instanceof Vertex && ((Vertex) o).data.equals(this.data)) {
+			return true;
+		}
+		return false;
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((data == null) ? 0 : data.hashCode());
+		result = prime * result + (isVisited ? 1231 : 1237);
+		return result;
+	}
+}
+
+class Edge {
+	Vertex vertex1;
+	Vertex vertex2;
+	int weight;
+	boolean isDirected;
+
+	public Edge(Vertex vertex1, Vertex vertex2) {
+		this.vertex1 = vertex1;
+		this.vertex2 = vertex2;
+	}
+
+	public Edge(Vertex vertex1, Vertex vertex2, int weight) {
+		this.vertex1 = vertex1;
+		this.vertex2 = vertex2;
+		this.weight = weight;
+	}
+
+	public Edge(Vertex vertex1, Vertex vertex2, int weight, boolean isDirected) {
+		this.vertex1 = vertex1;
+		this.vertex2 = vertex2;
+		this.weight = weight;
+		this.isDirected = isDirected;
+	}
+
+	public Edge(Vertex vertex1, Vertex vertex2, boolean isDirected) {
+		this.vertex1 = vertex1;
+		this.vertex2 = vertex2;
+		this.isDirected = isDirected;
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + (isDirected ? 1231 : 1237);
+		result = prime * result + ((vertex1 == null) ? 0 : vertex1.hashCode());
+		result = prime * result + ((vertex2 == null) ? 0 : vertex2.hashCode());
+		result = prime * result + weight;
+		return result;
+	}
+
+	public boolean equals(Object o) {
+		if (o instanceof Edge && ((Edge) o).vertex1.equals(this.vertex1) && ((Edge) o).vertex2.equals(this.vertex2)) {
+			return true;
+		}
+		return false;
+	}
+
+	public String toString() {
+		return "[" + vertex1.data + "->" + vertex2.data + "]";
+	}
+}
+
+class Graph {
+	Map<Vertex, List<Edge>> adj;
+	List<Vertex> allVertices = new ArrayList<Vertex>();
+	List<Edge> allEdges = new ArrayList<Edge>();
+	GraphType graphType;
+
+	public Graph(GraphType graphType) {
+		adj = new LinkedHashMap<Vertex, List<Edge>>();
+		this.graphType = graphType;
+	}
+
+	public void addVertex(String data) {
+		Vertex v = new Vertex(data);
+		addVertex(v);
+	}
+
+	public void addVertex(Vertex v) {
+		if (!adj.containsKey(v)) {
+			adj.put(v, new LinkedList<Edge>());
+			allVertices.add(v);
+		}
+	}
+
+	public Vertex getVertex(String data) {
+		Vertex v = new Vertex(data);
+		if (adj.containsKey(v)) {
+			return v;
+		}
+		return null;
+	}
+
+	public void addEdge(Vertex v1, Vertex v2, int weight) {
+		if (!adj.containsKey(v1)) {
+			addVertex(v1);
+		}
+		if (!adj.containsKey(v2)) {
+			addVertex(v2);
+		}
+
+		Edge e = new Edge(v1, v2);
+		adj.get(v1).add(e);
+		allEdges.add(e);
+
+		if (this.graphType.equals(GraphType.BIDIRECTED)) {
+			Edge e2 = new Edge(v2, v1);
+			adj.get(v2).add(e2);
+			allEdges.add(e2);
+		}
+	}
+
+	public void addEdge(String data1, String data2, int weight) {
+		Vertex v1 = new Vertex(data1);
+		Vertex v2 = new Vertex(data2);
+		addEdge(v1, v2, weight);
+	}
+
+	public void printGraph() {
+		for (Map.Entry<Vertex, List<Edge>> entry : adj.entrySet()) {
+			Vertex v = entry.getKey();
+			System.out.print(v + " => ");
+			List<Edge> edges = entry.getValue();
+			for (Edge e : edges) {
+				System.out.print(e + " , ");
+			}
+			System.out.println();
+		}
+	}
+	
+	public List<Edge> getUniqueEdgesOfVertex(Vertex vertex) {
+		List<Edge> edges = new ArrayList<Edge>();
+		for (Edge edge : this.adj.get(vertex)) {
+			edges.add(edge);
+		}
+		return edges;
+	}
+
+	public Graph reverseGraph(Graph graph) {
+		Graph reverseGraph = new Graph(GraphType.DIRECTED);
+		for (Edge edge : graph.allEdges) {
+			reverseGraph.addEdge(edge.vertex2, edge.vertex1, edge.weight);
+		}
+		return reverseGraph;
+	}
+
+	private void depthFirstSearch(Vertex vertex, Set<Vertex> visited, Stack<Vertex> stack) {		
+		visited.add(vertex);
+		List<Edge> edges = this.getUniqueEdgesOfVertex(vertex);
+		for (Edge e : edges) {
+			if (!visited.contains(e.vertex2)) {
+				depthFirstSearch(e.vertex2, visited, stack);
+			}			
+		}		
+		stack.add(vertex);
+	}
+	
+	private void depthFirstSearchForReversedGraph(Vertex vertex, Set<Vertex> visited, Set<Vertex> set) {
+		visited.add(vertex);
+		set.add(vertex);
+		for (Edge e : getUniqueEdgesOfVertex(vertex)) {
+			if (!visited.contains(e.vertex2)) {
+				depthFirstSearchForReversedGraph(e.vertex2, visited, set);
+			}
+		}
+	}
+
+	public List<Set<Vertex>> getStronglyConnectedVertices() {
+		Stack<Vertex> stack = new Stack<Vertex>();
+		Set<Vertex> visited = new HashSet<Vertex>();
+		
+		Graph reverseGraph = reverseGraph(this);
+		
+		for (Vertex vertex : reverseGraph.allVertices) {
+			if (!visited.contains(vertex)) {				
+				reverseGraph.depthFirstSearch(vertex, visited, stack);
+			}			
+		}
+
+		visited.clear();
+		List<Set<Vertex>> result = new ArrayList<Set<Vertex>>();
+		while (!stack.isEmpty()) {
+			Vertex vertex = this.getVertex(stack.pop().data);
+			if (!visited.contains(vertex)) {
+				Set<Vertex> set = new HashSet<Vertex>();
+				this.depthFirstSearchForReversedGraph(vertex, visited, set);
+				result.add(set);
+			}			
+		}
+		return result;
+	}
+
+}
+
+public class StronglyConnectedComponents {	
+	int size;
+	
+	private Graph createGraph() {
+		Map<String, List<String>> inputData = new LinkedHashMap<String, List<String>>();
+		Graph graph = new Graph(GraphType.DIRECTED);		
+		Scanner in = new Scanner(System.in);
+		size = in.nextInt();
+		in.nextLine();
+		for (int i = 0; i < size; ++i) {
+			String[] data = in.nextLine().split(" ");
+			for (int c = 0; c < data.length; c++) {
+				if (c == 0) {
+					inputData.put(data[0], new ArrayList<String>());
+					graph.addVertex(data[0]);
+					continue;
+				}
+				inputData.get(data[0]).add(data[c]);
+			}
+		}
+		
+		
+		for (Vertex v : graph.allVertices) {
+			String spokenLanguage = inputData.get(v.data).get(0);
+
+			for (Map.Entry<String, List<String>> entry : inputData.entrySet()) {
+				String vertexData = entry.getKey();
+				List<String> e = entry.getValue();
+				for (String s : e) {
+					if (v.data.equals(vertexData)) {
+						continue;
+					}
+					if (spokenLanguage.equals(s)) {
+						graph.addEdge(v.data, vertexData, 0);
+					}
+				}
+			}
+		}
+		return graph;
+	}
+
+	public static void main(String[] args) {
+
+		StronglyConnectedComponents scc = new StronglyConnectedComponents();
+		Graph graph = scc.createGraph();		
+		List<Set<Vertex>> sccSets = graph.getStronglyConnectedVertices();
+		int max = Integer.MIN_VALUE;
+		for (Set<Vertex> s : sccSets) {
+			if (s.size() > max)
+				max = s.size();
+		}
+
+		System.out.println((scc.size - max));
+
+	}
+
+}

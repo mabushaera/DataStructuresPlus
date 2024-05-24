@@ -1,0 +1,78 @@
+package j.datastructure.tutorial.stack.fixedsize;
+
+public class IntStack {
+    private int[] stack;
+    private int top;
+    private int size;
+    
+    public IntStack(){
+        this.top = -1;
+        this.size = 50;
+        stack = new int[this.size];
+    }
+    
+    public IntStack(int size){
+        this.top = -1;
+        this.size = size;
+        stack = new int[this.size];
+    }
+    
+    public void push(int value) throws Exception{
+        if(!isFull()){
+            top++;
+            stack[top] = value;
+            System.out.println(value+ " is pushed");
+        }else{
+            throw new Exception("Can't push element "+value+", stack is full");
+        }
+        
+    }
+    
+    public boolean isFull(){
+        return top == stack.length - 1;
+    }
+    
+    
+    public int pop() throws Exception{
+        if(isEmpty()){
+            throw new Exception("Can't pop element, stack is empty");
+        }
+        int value =  stack[top];
+        top--;
+        return value;
+    }
+    
+    public boolean isEmpty(){
+        return top == -1;
+    }
+}
+
+
+package j.datastructure.tutorial.stack.fixedsize;
+
+public class Demo {
+    public static void main(String[] args) {
+        IntStack stack = new IntStack(4);
+        try {
+            System.out.println("Start pushing");
+            stack.push(1);
+            stack.push(2);
+            stack.push(3);
+            stack.push(4);
+            stack.push(5);
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+        try {
+            System.out.println("Start poping");
+            System.out.println(stack.pop());
+            System.out.println(stack.pop());
+            System.out.println(stack.pop());
+            System.out.println(stack.pop());
+            System.out.println(stack.pop());
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+    }
+}
+

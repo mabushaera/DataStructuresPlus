@@ -1,0 +1,69 @@
+// would be perfect if you add randomization to this i.e. not always select the first element as pivot, 
+create a method that returns a random pivot
+
+public class Median {
+	
+	public static void main(String[] args) {
+		int[] arr = { 3,10,6,1,2,4,9,5, 7};
+		int medianPosition = arr.length / 2;		
+		int median = findMedian(arr, medianPosition);
+		System.out.println("median: "+median);
+	}
+	
+	public static void printArr(int[] arr) {
+		for(int i: arr) {
+			System.out.print(i+ " ");
+		}
+		System.out.println();
+	}
+	
+	static int partition (int[] arr, int low, int high) {
+		int pivot = arr[low];
+		
+			int i = low + 1;
+			for(int j = low+1 ; j <= high ; j++) {
+				if(arr[j] < pivot) {
+					swap(arr, i, j);
+					i++;
+				}
+			}
+			swap(arr, low, i-1);
+			return i - 1;	// the index of the pivot		
+	}
+	
+	public static int[] getSubArray(int[] arr, int start, int end) {
+		int[] newArr = new int[end - start];
+		for(int j = 0 , i = start ; i < end ; i++, j++) {
+			newArr[j] = arr[i];
+		}
+		return newArr;
+	}
+	
+	public static int findMedian(int[] arr, int medianPosition) {
+		int pivot = arr[0];
+		int pivotIndex = 0;
+		if (arr.length == 1) return pivot;
+		else {
+			pivotIndex  = partition(arr, 0, arr.length - 1);
+					
+			int[] sLeft = getSubArray(arr, 0, pivotIndex);
+			
+			int[] sRight = getSubArray(arr , (pivotIndex +1) , arr.length);
+			
+			if(sLeft.length == medianPosition) return pivot;
+
+			if(sLeft.length > medianPosition) {
+				return findMedian(sLeft, medianPosition);
+			}
+			else{
+				return findMedian(sRight,  medianPosition - sLeft.length -1);
+			}
+		}
+	}
+	
+	public static void swap(int[] arr, int a, int b) {
+		int temp = arr[a];
+		arr[a] = arr[b];
+		arr[b] = temp;
+	}
+}

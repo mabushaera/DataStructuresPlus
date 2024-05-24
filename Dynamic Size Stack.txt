@@ -1,0 +1,107 @@
+/*
+This stack is for storing integers, you can create it the same exact way for any object type, like Node, Person,etc..
+In this case I think you need to override the toString to be easier to print the attributes for a specic object on pushing or poping.
+*/
+package j.datastructure.tutorial.stack.dynamicsize;
+
+public class IntStack {
+    private int[] stack;
+    private int top;
+    private int size;
+
+    public IntStack(int size) { // user can determin the size of the stack on initialization.
+        this.top = -1;
+        this.size = size;
+        stack = new int[this.size];
+    }
+
+    public void increaseSizeByOneItem() {
+        int[] newStack = new int[this.size + 1];
+        for (int i = 0; i < stack.length; i++) {
+            newStack[i] = stack[i];
+        }
+        stack = newStack;
+    }
+
+    public void increaseSizeByDouble() {
+        int[] newStack = new int[this.size * 2];
+        for (int i = 0; i < stack.length; i++) {
+            newStack[i] = stack[i];
+        }
+        stack = newStack;
+    }
+
+    public void push(int value) {
+        if (isFull()) {
+            increaseSizeByOneItem();
+        }
+        top++;
+        stack[top] = value;
+        System.out.println("item " + value + " is pushed");
+    }
+
+    public boolean isFull() {
+        return top == stack.length - 1;
+    }
+
+    public int pop()
+        throws Exception {
+        if (isEmpty()) {
+            throw new Exception("Can't pop element, stack is empty");
+        }
+        int value = stack[top];
+        top--;
+        return value;
+    }
+
+    public boolean isEmpty() {
+        return top == -1;
+    }
+}
+
+
+
+
+package j.datastructure.tutorial.stack.fixedsize;
+
+public class Demo {
+    public static void main(String[] args) {
+        IntStack stack = new IntStack(4);
+        try {
+            System.out.println("Start pushing");
+            stack.push(1);
+            stack.push(2);
+            stack.push(3);
+            stack.push(4);
+            stack.push(5);
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+        try {
+            System.out.println("Start poping");
+            System.out.println(stack.pop());
+            System.out.println(stack.pop());
+            System.out.println(stack.pop());
+            System.out.println(stack.pop());
+            System.out.println(stack.pop());
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+    }
+}
+
+/*
+results:
+Start pushing
+item 1 is pushed
+item 2 is pushed
+item 3 is pushed
+item 4 is pushed
+item 5 is pushed
+Start poping
+5
+4
+3
+2
+1
+*/
